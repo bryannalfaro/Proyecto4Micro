@@ -1,3 +1,6 @@
+//Universidad del Valle de Guatemala
+//Proyecto 4 - Calculo de Pi con Wallis
+//Programacion de Microprocesadores
 #include <stdio.h>
 #include <cuda_runtime.h>
 
@@ -5,18 +8,24 @@ __global__ void
 serieWallis(float *convergencia, int *vectorN, int limite)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
-    
-    
-
+    float operacion;
+    float operacion2;
+ 
+    if((i-1)<=limite){
+        operacion = (2.0f*(vectorN[i-1]))/((2.0f*(vectorN[i-1]))-1.0f);
+        operacion2 = (2.0f*(i))/((2.0f*(i))+1.0f);
+        convergencia[i]=operacion*operacion2;
+    }
 }
 
 int main(void){
 
     int valorN =1000;
+    float result=1.0f;
 
     //Reserva en el host
-    int *host_vectorN= (int *)malloc(sizeof(int));
-    float *host_vectorValor= (float *)malloc(sizeof(float));
+    int *host_vectorN= (int *)malloc(10000*sizeof(int));
+    float *host_vectorValor= (float *)malloc(10000*sizeof(float));
 
     //Llenado con los valores de N
     for(int i = 1; i <= valorN; i++)
@@ -24,6 +33,41 @@ int main(void){
          host_vectorN[i-1]=i;
      }
 
+     for(int i = 1; i <= valorN; i++)
+     {
+         //printf("Valor: %d",host_vectorN[3]);
+     }
+
+    int *d_vectorN = NULL;
+    cudaMalloc((void **)&d_vectorN,10000*sizeof(int));
+    float *d_vectorValor = NULL;
+    cudaMalloc((void **)&d_vectorValor, 10000*sizeof(float));
+
+    cudaMemcpy(d_vectorN, host_vectorN, 10000*sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_vectorValor, host_vectorValor, 10000*sizeof(float), cudaMemcpyHostToDevice);
+
+
+    int threadsPerBlock = valorN+1;
+    int blocksPerGrid =(4 + threadsPerBlock - 1) / threadsPerBlock;
     
+    serieWallis<<<200,threadsPerBlock>>>(d_vectorValor, d_vectorN, valorN);
+
+    cudaMemcpy(host_vectorValor, d_vectorValor, 10000*sizeof(float), cudaMemcpyDeviceToHost);
+
+    
+    for(int j=1;j<=valorN;j++){
+        //printf("\nEl valor  es:  %.7f\n",host_vectorValor[j]);  
+        result*=(host_vectorValor[j]);
+       // printf("\nEl result  es:  %.7f\n",result);
+         
+     }
+
+     printf("\nEl valor pi es:  %.7f\n",result*2);
+
+    free(host_vectorN);
+    free(host_vectorValor);
+    
+    cudaFree(d_vectorN);
+    cudaFree(d_vectorValor);
 
 }
