@@ -45,6 +45,10 @@ int main(void){
     float *d_vectorValor = NULL;
     cudaMalloc((void **)&d_vectorValor, sizef);
 
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
     cudaMemcpy(d_vectorN, host_vectorN,sizei, cudaMemcpyHostToDevice);
     cudaMemcpy(d_vectorValor, host_vectorValor, sizef, cudaMemcpyHostToDevice);
 
@@ -53,13 +57,24 @@ int main(void){
     //int blocksPerGrid =(threadsPerBlock+1) /;
     int blocksPerGrid =(valorN + threadsPerBlock - 1) / threadsPerBlock;
     
-    printf("%d",blocksPerGrid);
+    printf("%d\n",blocksPerGrid);
     
+    cudaEventRecord(start);
     serieWallis<<<blocksPerGrid+1,threadsPerBlock>>>(d_vectorValor, d_vectorN, valorN);
+    cudaEventRecord(stop);
 
     cudaMemcpy(host_vectorValor, d_vectorValor, sizef, cudaMemcpyDeviceToHost);
 
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+
     
+
+    
+    printf("Milisegundos: %.5f\n",milliseconds);
+    printf("Segundos: %.5f\n",milliseconds/1000);
+
     for(int j=1;j<=valorN;j++){
         //printf("\nEl valor  es:  %.7f\n",host_vectorValor[j]);  
         result*=(host_vectorValor[j]);
