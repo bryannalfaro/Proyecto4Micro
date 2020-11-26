@@ -20,12 +20,14 @@ serieWallis(float *convergencia, int *vectorN, int limite)
 
 int main(void){
 
-    int valorN =1000;
+    int valorN =10000;
     float result=1.0f;
+    size_t sizef = 10*valorN* sizeof(float);
+    size_t sizei = 10*valorN* sizeof(int);
 
     //Reserva en el host
-    int *host_vectorN= (int *)malloc(10000*sizeof(int));
-    float *host_vectorValor= (float *)malloc(10000*sizeof(float));
+    int *host_vectorN= (int *)malloc(sizei);
+    float *host_vectorValor= (float *)malloc(sizef);
 
     //Llenado con los valores de N
     for(int i = 1; i <= valorN; i++)
@@ -39,20 +41,23 @@ int main(void){
      }
 
     int *d_vectorN = NULL;
-    cudaMalloc((void **)&d_vectorN,10000*sizeof(int));
+    cudaMalloc((void **)&d_vectorN,sizei);
     float *d_vectorValor = NULL;
-    cudaMalloc((void **)&d_vectorValor, 10000*sizeof(float));
+    cudaMalloc((void **)&d_vectorValor, sizef);
 
-    cudaMemcpy(d_vectorN, host_vectorN, 10000*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_vectorValor, host_vectorValor, 10000*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_vectorN, host_vectorN,sizei, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_vectorValor, host_vectorValor, sizef, cudaMemcpyHostToDevice);
 
 
-    int threadsPerBlock = valorN+1;
-    int blocksPerGrid =(4 + threadsPerBlock - 1) / threadsPerBlock;
+    int threadsPerBlock = 1000;
+    //int blocksPerGrid =(threadsPerBlock+1) /;
+    int blocksPerGrid =(valorN + threadsPerBlock - 1) / threadsPerBlock;
     
-    serieWallis<<<200,threadsPerBlock>>>(d_vectorValor, d_vectorN, valorN);
+    printf("%d",blocksPerGrid);
+    
+    serieWallis<<<blocksPerGrid+1,threadsPerBlock>>>(d_vectorValor, d_vectorN, valorN);
 
-    cudaMemcpy(host_vectorValor, d_vectorValor, 10000*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_vectorValor, d_vectorValor, sizef, cudaMemcpyDeviceToHost);
 
     
     for(int j=1;j<=valorN;j++){
@@ -62,7 +67,7 @@ int main(void){
          
      }
 
-     printf("\nEl valor pi es:  %.7f\n",result*2);
+     printf("\nEl valor pi es:  %.16f\n",result*2);
 
     free(host_vectorN);
     free(host_vectorValor);
