@@ -1,6 +1,6 @@
 # Proyecto 4 Microprocesadores
 
-**Archivos y bitacora proyecto 3**
+**Archivos proyecto 4**
 
 ## Integrantes 🚀
 
