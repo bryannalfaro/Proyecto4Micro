@@ -20,10 +20,10 @@ serieWallis(float *convergencia, int *vectorN, int limite)
 
 int main(void){
 
-    int valorN =10000;
+    int valorN =1000;
     float result=1.0f;
-    size_t sizef = 10*valorN* sizeof(float);
-    size_t sizei = 10*valorN* sizeof(int);
+    size_t sizef = 1000*valorN* sizeof(float);
+    size_t sizei = 1000*valorN* sizeof(int);
 
     //Reserva en el host
     int *host_vectorN= (int *)malloc(sizei);
