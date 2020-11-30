@@ -2,11 +2,11 @@
 //Proyecto 4 - Calculo de Pi con Wallis y Nilakantha
 //Programacion de Microprocesadores
 //Integrantes:
-//Bryann Alfaro
-//Diego Arredondo
-//Donaldo Garcia
-//Raul Jimenez
-//Diego Alvarez
+//Bryann Alfaro 19372
+//Diego Arredondo 19422
+//Donaldo Garcia 19683
+//Raul Jimenez 19017
+//Diego Alvarez 19498
 
 #include <stdio.h>
 #include <cuda_runtime.h>
@@ -48,7 +48,7 @@ int main(void){
     cudaStreamCreate(&stream1);
     cudaStreamCreate(&stream2);
 
-    int valorN =10000;
+    int valorN =1000;
 
     //Stream 1
     float result=1.0f;
